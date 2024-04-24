@@ -43,7 +43,7 @@ ggplot(data, aes(x = DATE, y = OBS_VALUE)) +
 ggplot(data, aes(x = DATE, y = diff1)) +
   geom_line(color = 'orange') + 
   
-  labs(title = "Valeurs observées non traitées de la série indice de la production de bière",
+  labs(title = "Valeurs observées stationnarisées de la série indice de la production de bière",
        x = "Date",
        y = "Indice de la production de bière") +
   scale_x_date(date_breaks = "year", date_labels = "%Y")+
