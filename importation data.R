@@ -2,7 +2,7 @@
 library(insee)
 library(tseries)
 library(ggplot2)
-
+library(broom)
 
 # 2 - Import of data ----
 data = as.data.frame(insee::get_insee_idbank("010767678"))
@@ -57,5 +57,10 @@ ggplot(data, aes(x = DATE, y = diff1)) +
 
 #6 - Picking ARMA 
 
+acf(na.omit(data[, "diff1"])) #q = 2
+pacf(na.omit(data[, "diff1"])) # p = 6
 
+res = arima(na.omit(data[, "diff1"]), c(6,0,2))
+res
+plot(res$residuals)
 
