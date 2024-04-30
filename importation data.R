@@ -10,7 +10,7 @@ data[,"DATE"] = as.Date(paste(data[,"TIME_PERIOD"], "-01", sep=""))
 data= data[, c("DATE", "OBS_VALUE")]
 
 # 3 - Stationnarity tests for basic series -----
-tseries::adf.test(data[, "OBS_VALUE"]) # p-value = 0.75, pas stationnaire
+tseries::adf.test(data[, "OBS_VALUE"]) # p-value = 0.03, stationnaire
 tseries::kpss.test(data[, "OBS_VALUE"]) # p-value = 0.01, pas stationnaire
 tseries::pp.test(data[, "OBS_VALUE"]) # p-value = 0.01, stationnaire
 
@@ -29,9 +29,9 @@ tseries::pp.test(na.omit(data[, "diff1"])) # p-value = 0.01, stationnaire
 ggplot(data, aes(x = DATE, y = OBS_VALUE)) +
   geom_line(color = 'turquoise') + 
   
-  labs(title = "Before transformation - index of industrial production of beer manufacturing, France",
+  labs(title = "Before transformation - index of manufacture of perfumes and toiletries, France",
        x = "Date",
-       y = "Index of industrial production of beer manufacturing") +
+       y = "Index Manufacture of perfumes and toiletries") +
   scale_x_date(date_breaks = "2 years", date_labels = "%Y")+
   theme_minimal() + 
   theme(plot.title = element_text(size = 10, face = 'bold', hjust = 0.5),
@@ -44,9 +44,9 @@ ggplot(data, aes(x = DATE, y = OBS_VALUE)) +
 ggplot(data, aes(x = DATE, y = diff1)) +
   geom_line(color = 'orange') + 
   
-  labs(title = "After transformation - index of industrial production of beer manufacturing, France",
+  labs(title = "After transformation - index of manufacture of perfumes and toiletries, France",
        x = "Date",
-       y = "Index of industrial production of beer manufacturing") +
+       y = "Index of manufacture of perfumes and toiletries") +
   scale_x_date(date_breaks = "2 years", date_labels = "%Y")+
   theme_minimal() + 
   theme(plot.title = element_text(size = 10, face = 'bold', hjust = 0.5),
