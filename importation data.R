@@ -5,7 +5,7 @@ library(ggplot2)
 library(broom)
 
 # 2 - Import of data ----
-data = as.data.frame(insee::get_insee_idbank("010767678"))
+data = as.data.frame(insee::get_insee_idbank("010767815"))
 data[,"DATE"] = as.Date(paste(data[,"TIME_PERIOD"], "-01", sep=""))
 data= data[, c("DATE", "OBS_VALUE")]
 
