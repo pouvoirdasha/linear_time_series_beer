@@ -8,9 +8,10 @@ library(broom)
 data = as.data.frame(insee::get_insee_idbank("010767815"))
 data[,"DATE"] = as.Date(paste(data[,"TIME_PERIOD"], "-01", sep=""))
 data= data[, c("DATE", "OBS_VALUE")]
+data <- data[order(data[, "DATE"]),]
 
 # 3 - Stationnarity tests for basic series -----
-tseries::adf.test(data[, "OBS_VALUE"]) # p-value = 0.03, stationnaire
+tseries::adf.test(data[, "OBS_VALUE"]) # p-value = 0.05, stationnaire
 tseries::kpss.test(data[, "OBS_VALUE"]) # p-value = 0.01, pas stationnaire
 tseries::pp.test(data[, "OBS_VALUE"]) # p-value = 0.01, stationnaire
 
@@ -60,7 +61,6 @@ ggplot(data, aes(x = DATE, y = diff1)) +
 acf(na.omit(data[, "diff1"])) #q = 2
 pacf(na.omit(data[, "diff1"])) # p = 6
 
-res = arima(na.omit(data[, "diff1"]), c(6,0,2))
+res = arima(na.omit(data[, "diff1"]), c(2,0,2))
 res
 plot(res$residuals)
-
