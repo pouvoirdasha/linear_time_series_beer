@@ -119,4 +119,4 @@ armamodelchoice <- function(pmax,qmax){
   }))
 }
 
-armamodels <- armamodelchoice(3,3) #estime tous les arima (patienter...)
+armamodels <- armamodelchoice(3,3) #estimation de tous les arima possibles 
