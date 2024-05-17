@@ -5,13 +5,14 @@ library(ggplot2)
 library(broom)
 
 # 2 - Import of data ----
-data = as.data.frame(insee::get_insee_idbank("010767815"))
-data[,"DATE"] = as.Date(paste(data[,"TIME_PERIOD"], "-01", sep=""))
-data= data[, c("DATE", "OBS_VALUE")]
+data <- as.data.frame(insee::get_insee_idbank("010767815"))
+data[,"DATE"] <- as.Date(paste(data[,"TIME_PERIOD"], "-01", sep=""))
+data <- data[, c("DATE", "OBS_VALUE")]
+data <- data[data$DATE < as.Date("2020-01-01"),]
 data <- data[order(data[, "DATE"]),]
 
 # 3 - Stationnarity tests for basic series -----
-tseries::adf.test(data[, "OBS_VALUE"]) # p-value = 0.05, stationnaire
+tseries::adf.test(data[, "OBS_VALUE"]) # p-value = 0.7, stationnaire
 tseries::kpss.test(data[, "OBS_VALUE"]) # p-value = 0.01, pas stationnaire
 tseries::pp.test(data[, "OBS_VALUE"]) # p-value = 0.01, stationnaire
 
@@ -58,9 +59,64 @@ ggplot(data, aes(x = DATE, y = diff1)) +
 
 #6 - Picking ARMA 
 
-acf(na.omit(data[, "diff1"])) #q = 2
-pacf(na.omit(data[, "diff1"])) # p = 6
+acf(na.omit(data[, "diff1"])) #q = 3
+pacf(na.omit(data[, "diff1"])) # p = 3
 
-res = arima(na.omit(data[, "diff1"]), c(2,0,2))
+res = arima(na.omit(data[, "diff1"]), c(3,0,3))
 res
 plot(res$residuals)
+
+Box.test(res$residuals, lag=7, type = "Ljung-Box")
+Qtests(res$residuals, 24)
+
+#### fonction
+Qtests <- function(series, k, fitdf=0) {
+  pvals <- apply(matrix(1:k), 1, FUN=function(l) {
+    pval <- if (l<=fitdf) NA else Box.test(series, lag=l, type="Ljung-Box", fitdf=fitdf)$p.value
+    return(c("lag"=l,"pval"=pval))
+  })
+  return(t(pvals))
+}
+
+signif <- function(estim){ #fonction de test des significations individuelles des coefficients
+  coef <- estim$coef
+  se <- sqrt(diag(estim$var.coef))
+  t <- coef/se
+  pval <- (1-pnorm(abs(t)))*2
+  return(rbind(coef,se,pval))
+}
+
+
+##
+arimafit <- function(estim){
+  adjust <- round(signif(estim),3)
+  pvals <- Qtests(estim$residuals,24,length(estim$coef)-1)
+  pvals <- matrix(apply(matrix(1:24,nrow=6),2,function(c) round(pvals[c,],3)),nrow=6)
+  colnames(pvals) <- rep(c("lag", "pval"),4)
+  cat("tests de nullite des coefficients :\n")
+  print(adjust)
+  cat("\n tests d'absence d'autocorrelation des residus : \n")
+  print(pvals)
+}
+
+modelchoice <- function(p,q,data1=na.omit(data[, "diff1"]), k=24){
+  estim <- try(arima(data1, c(p,0,q),optim.control=list(maxit=20000)))
+  if (class(estim)=="try-error") return(c("p"=p,"q"=q,"arsignif"=NA,"masignif"=NA,"resnocorr"=NA, "ok"=NA))
+  arsignif <- if (p==0) NA else signif(estim)[3,p]<=0.05
+  masignif <- if (q==0) NA else signif(estim)[3,p+q]<=0.05
+  resnocorr <- sum(Qtests(estim$residuals,24,length(estim$coef)-1)[,2]<=0.05,na.rm=T)==0
+  checks <- c(arsignif,masignif,resnocorr)
+  ok <- as.numeric(sum(checks,na.rm=T)==(3-sum(is.na(checks))))
+  return(c("p"=p,"q"=q,"arsignif"=arsignif,"masignif"=masignif,"resnocorr"=resnocorr,"ok"=ok))
+}
+
+armamodelchoice <- function(pmax,qmax){
+  pqs <- expand.grid(0:pmax,0:qmax)
+  t(apply(matrix(1:dim(pqs)[1]),1,function(row) {
+    p <- pqs[row,1]; q <- pqs[row,2]
+    cat(paste0("Computing ARMA(",p,",",q,") \n"))
+    modelchoice(p,q)
+  }))
+}
+
+armamodels <- armamodelchoice(3,3) #estime tous les arima (patienter...)
