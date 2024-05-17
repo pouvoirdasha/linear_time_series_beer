@@ -58,16 +58,16 @@ ggplot(data, aes(x = DATE, y = diff1)) +
 
 
 #6 - Picking ARMA 
+parfum = na.omit(data[, "diff1"])
+acf(parfum) #q = 3
+pacf(parfum) # p = 3
 
-acf(na.omit(data[, "diff1"])) #q = 3
-pacf(na.omit(data[, "diff1"])) # p = 3
+arima303 = arima(parfum, c(3,0,3))
+arima303
+plot(arima303$residuals)
 
-res = arima(na.omit(data[, "diff1"]), c(3,0,3))
-res
-plot(res$residuals)
-
-Box.test(res$residuals, lag=7, type = "Ljung-Box")
-Qtests(res$residuals, 24)
+Box.test(arima303$residuals, lag=7, type = "Ljung-Box")
+Qtests(arima303$residuals, 24)
 
 #### fonction
 Qtests <- function(series, k, fitdf=0) {
@@ -99,7 +99,7 @@ arimafit <- function(estim){
   print(pvals)
 }
 
-modelchoice <- function(p,q,data1=na.omit(data[, "diff1"]), k=24){
+modelchoice <- function(p,q,data1=parfum, k=24){
   estim <- try(arima(data1, c(p,0,q),optim.control=list(maxit=20000)))
   if (class(estim)=="try-error") return(c("p"=p,"q"=q,"arsignif"=NA,"masignif"=NA,"resnocorr"=NA, "ok"=NA))
   arsignif <- if (p==0) NA else signif(estim)[3,p]<=0.05
@@ -120,3 +120,12 @@ armamodelchoice <- function(pmax,qmax){
 }
 
 armamodels <- armamodelchoice(3,3) #estimation de tous les arima possibles 
+
+arima300 = arima(parfum, c(3,0,0))#3, 0 ; 2 1 ; 0 3
+arima201 = arima(parfum, c(2,0,1))
+arima003 = arima(parfum, c(0,0,3))
+
+arima300
+arima201
+arima003
+
