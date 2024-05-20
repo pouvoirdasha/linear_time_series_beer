@@ -59,6 +59,8 @@ ggplot(data, aes(x = DATE, y = diff1)) +
 
 #6 - Picking ARMA 
 parfum = na.omit(data[, "diff1"])
+parfum <- parfum - mean(parfum)
+
 acf(parfum) #q = 3
 pacf(parfum) # p = 3
 
@@ -125,7 +127,14 @@ arima300 = arima(parfum, c(3,0,0))#3, 0 ; 2 1 ; 0 3
 arima201 = arima(parfum, c(2,0,1))
 arima003 = arima(parfum, c(0,0,3))
 
-arima300
-arima201
-arima003
 
+AIC(arima300)
+AIC(arima201)
+AIC(arima003)
+BIC(arima300)
+BIC(arima201)
+BIC(arima003)
+
+parfum_nondiff <- data[, "OBS_VALUE"]
+arima013 <- arima(parfum_nondiff, c(0,1,3))
+arima013
