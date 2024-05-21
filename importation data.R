@@ -168,6 +168,6 @@ dim(cov) <- c(2,2)
 
 #ellipse en soi
 # Plot the confidence ellipse
-plot(ellipse(cov, centre = mu, level = 0.95), type = 'l', col = "blue", xlab = "X1", ylab = "X2", main = "95% Confidence Ellipse")
+plot(ellipse(cov, centre = mu, level = 0.95), type = 'l', col = "blue", xlab = "X(t+1)", ylab = "X(t+2)", main = "95% Confidence Ellipse")
 points(mu[1], mu[2], col = "red", pch = 19)  # Adding the mean point
 #legend("topright", legend = c("95% Confidence Ellipse", "Mean"), col = c("blue", "red"), lwd = 2, pch = c(NA, 19))
