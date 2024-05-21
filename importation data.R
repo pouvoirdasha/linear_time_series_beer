@@ -8,7 +8,7 @@ library(broom)
 data <- as.data.frame(insee::get_insee_idbank("010767815"))
 data[,"DATE"] <- as.Date(paste(data[,"TIME_PERIOD"], "-01", sep=""))
 data <- data[, c("DATE", "OBS_VALUE")]
-data <- data[data$DATE < as.Date("2020-01-01"),]
+
 data <- data[order(data[, "DATE"]),]
 
 # 3 - Stationnarity tests for basic series -----
@@ -16,7 +16,7 @@ tseries::adf.test(data[, "OBS_VALUE"]) # p-value = 0.7, stationnaire
 tseries::kpss.test(data[, "OBS_VALUE"]) # p-value = 0.01, pas stationnaire
 tseries::pp.test(data[, "OBS_VALUE"]) # p-value = 0.01, stationnaire
 
-
+data <- data[data$DATE < as.Date("2020-01-01"),]
 # 4 - Stationnarity for the differentiated series ----
 data[, "diff1"] <- c(NA, diff(data[, "OBS_VALUE"]))
 
@@ -66,7 +66,8 @@ pacf(parfum) # p = 3
 
 arima303 = arima(parfum, c(3,0,3))
 arima303
-plot(arima303$residuals)
+plot(arima303$residuals, col='darkblue', xlab = 'Period', ylab='Residuals', main = 'ARMA(3,3) residuals plot')
+
 
 Box.test(arima303$residuals, lag=7, type = "Ljung-Box")
 Qtests(arima303$residuals, 24)
@@ -127,6 +128,7 @@ arima300 = arima(parfum, c(3,0,0))#3, 0 ; 2 1 ; 0 3
 arima201 = arima(parfum, c(2,0,1))
 arima003 = arima(parfum, c(0,0,3))
 
+arima003
 
 AIC(arima300)
 AIC(arima201)
@@ -135,6 +137,14 @@ BIC(arima300)
 BIC(arima201)
 BIC(arima003)
 
-parfum_nondiff <- data[, "OBS_VALUE"]
-arima013 <- arima(parfum_nondiff, c(0,1,3))
-arima013
+#parfum_nondiff <- data[, "OBS_VALUE"]
+#arima013 <- arima(parfum_nondiff, c(0,1,3))
+#arima310 = arima(parfum_nondiff, c(3,1,0))#3, 0 ; 2 1 ; 0 3
+#arima211 = arima(parfum_nondiff, c(2,1,1))
+
+#AIC(arima310)
+#AIC(arima211)
+#AIC(arima013)
+#BIC(arima310)
+#BIC(arima211)
+#BIC(arima013)
