@@ -148,6 +148,7 @@ BIC(arima310)
 BIC(arima211)
 BIC(arima013)
 
+
 # Ellipse ----
 #betas
 beta1 <- arima310$coef[1] + 1
@@ -171,3 +172,46 @@ dim(cov) <- c(2,2)
 plot(ellipse(cov, centre = mu, level = 0.95), asp = 1, type = 'l', col = "blue", xlab = "X(t+1)", ylab = "X(t+2)", main = "95% Confidence Ellipse")
 points(mu[1], mu[2], col = "red", pch = 19)  # Adding the mean point
 #legend("topright", legend = c("95% Confidence Ellipse", "Mean"), col = c("blue", "red"), lwd = 2, pch = c(NA, 19))
+
+
+#Confidence interval : 
+
+sigma2_tilde <- sigma2 * (1 + beta1^2)
+#getting the quantile 
+
+alpha <- 0.05
+q_alpha <- qnorm(1 - alpha/2)
+
+
+lower_bound1 <- pred_1 - sqrt(sigma2_tilde) * q_alpha
+upper_bound1 <- pred_1 + sqrt(sigma2_tilde) * q_alpha
+
+lower_bound2 <- pred_2 - sqrt(sigma2_tilde) * q_alpha
+upper_bound2 <- pred_2 + sqrt(sigma2_tilde) * q_alpha
+
+future_dates <- seq.Date(max(data[,'DATE'])+31, by = "month", length.out = 2)
+future_values <- c(pred_1,pred_2)
+future_lower <- c(lower_bound1, lower_bound2)
+future_upper <- c(upper_bound1, upper_bound2)
+
+
+
+# Create a data frame for plotting
+plot_data <- data.frame(
+  Date = c(data[,"DATE"], future_dates),
+  Value = c(as.numeric(data[,"OBS_VALUE"]), future_values),
+  Lower = c(rep(NA, length(data[,"OBS_VALUE"])), future_lower),
+  Upper = c(rep(NA, length(data[,"OBS_VALUE"])), future_upper)
+)
+
+plot_data <- tail(plot_data, 10)
+
+# Plot the time series with future values and their confidence intervals
+ggplot(plot_data, aes(x = Date, y = Value)) +
+  geom_line(color = "darkblue") +
+  geom_point(data = plot_data[is.na(plot_data$Lower) == FALSE,], color = "red") +
+  geom_ribbon(aes(ymin = Lower, ymax = Upper), alpha = 0.4, fill = "pink") +
+  labs(title = "Confidence interval representation for the next two predictions",
+       x = "Date",
+       y = "Index of manufacture of perfumes and toiletries") +
+  theme_minimal()
