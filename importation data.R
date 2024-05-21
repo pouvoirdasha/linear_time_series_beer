@@ -3,6 +3,7 @@ library(insee)
 library(tseries)
 library(ggplot2)
 library(broom)
+library(MVQuickGraphs)
 
 # 2 - Import of data ----
 data <- as.data.frame(insee::get_insee_idbank("010767815"))
@@ -136,5 +137,18 @@ BIC(arima201)
 BIC(arima003)
 
 parfum_nondiff <- data[, "OBS_VALUE"]
+arima310 <- arima(parfum_nondiff, c(3,1,0))
+arima211 <- arima(parfum_nondiff, c(2,1,1))
 arima013 <- arima(parfum_nondiff, c(0,1,3))
-arima013
+
+AIC(arima310)
+AIC(arima211)
+AIC(arima013)
+BIC(arima310)
+BIC(arima211)
+BIC(arima013)
+
+# Ellipse ----
+
+
+
