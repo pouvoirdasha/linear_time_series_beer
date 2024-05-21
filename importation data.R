@@ -3,7 +3,7 @@ library(insee)
 library(tseries)
 library(ggplot2)
 library(broom)
-library(MVQuickGraphs)
+library(ellipse)
 
 # 2 - Import of data ----
 data <- as.data.frame(insee::get_insee_idbank("010767815"))
@@ -149,6 +149,25 @@ BIC(arima211)
 BIC(arima013)
 
 # Ellipse ----
+#betas
+beta1 <- arima310$coef[1] + 1
+beta2 <- arima310$coef[2] - arima310$coef[1]
+beta3 <- arima310$coef[3] - arima310$coef[2]
+beta4 <- - arima310$coef[3]
 
+#best linear prediction
+pred_1 <- beta1 * parfum_nondiff[length(parfum_nondiff)] + beta2 * parfum_nondiff[length(parfum_nondiff) - 1] + beta3 * parfum_nondiff[length(parfum_nondiff) - 2] + beta4 * parfum_nondiff[length(parfum_nondiff) - 3]
+pred_2 <- beta1 * pred_1 + beta2 * parfum_nondiff[length(parfum_nondiff)] + beta3 * parfum_nondiff[length(parfum_nondiff) - 1] + beta4 * parfum_nondiff[length(parfum_nondiff) - 2]
+mu <- c(pred_1, pred_2)
 
+# valeurs propres de la matrice de covariance
+res <- arima310$residuals
+sigma2 <- var(res)
+cov <- c(sigma2, -beta1*sigma2, -beta1*sigma2, sigma2*(1+beta1^2))
+dim(cov) <- c(2,2)
 
+#ellipse en soi
+# Plot the confidence ellipse
+plot(ellipse(cov, centre = mu, level = 0.95), type = 'l', col = "blue", xlab = "X1", ylab = "X2", main = "95% Confidence Ellipse")
+points(mu[1], mu[2], col = "red", pch = 19)  # Adding the mean point
+#legend("topright", legend = c("95% Confidence Ellipse", "Mean"), col = c("blue", "red"), lwd = 2, pch = c(NA, 19))
