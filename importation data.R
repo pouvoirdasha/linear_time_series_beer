@@ -218,4 +218,7 @@ ggplot(plot_data, aes(x = Date, y = Value)) +
   labs(title = "95% confidence interval representation for the next two predictions",
        x = "Date",
        y = "Index of manufacture of perfumes and toiletries") +
-  theme_minimal()
+  theme_minimal()+
+  theme(plot.title = element_text(size = 20, face = 'bold', hjust = 0.5))
+
+        
