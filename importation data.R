@@ -70,7 +70,7 @@ arima303
 plot(arima303$residuals)
 
 Box.test(arima303$residuals, lag=7, type = "Ljung-Box")
-Qtests(arima303$residuals, 24)
+
 
 #### fonction
 Qtests <- function(series, k, fitdf=0) {
@@ -80,6 +80,8 @@ Qtests <- function(series, k, fitdf=0) {
   })
   return(t(pvals))
 }
+
+Qtests(arima303$residuals, 24)
 
 signif <- function(estim){ #fonction de test des significations individuelles des coefficients
   coef <- estim$coef
@@ -181,14 +183,16 @@ sigma2_tilde <- sigma2 * (1 + beta1^2)
 
 alpha <- 0.05
 q_alpha <- qnorm(1 - alpha/2)
+#defining upper and lower bounds of our interval
 
-
-lower_bound1 <- pred_1 - sqrt(sigma2_tilde) * q_alpha
-upper_bound1 <- pred_1 + sqrt(sigma2_tilde) * q_alpha
+lower_bound1 <- pred_1 - sqrt(sigma2) * q_alpha
+upper_bound1 <- pred_1 + sqrt(sigma2) * q_alpha
 
 lower_bound2 <- pred_2 - sqrt(sigma2_tilde) * q_alpha
 upper_bound2 <- pred_2 + sqrt(sigma2_tilde) * q_alpha
 
+
+#creating vectors for future dates 
 future_dates <- seq.Date(max(data[,'DATE'])+31, by = "month", length.out = 2)
 future_values <- c(pred_1,pred_2)
 future_lower <- c(lower_bound1, lower_bound2)
@@ -211,7 +215,7 @@ ggplot(plot_data, aes(x = Date, y = Value)) +
   geom_line(color = "darkblue") +
   geom_point(data = plot_data[is.na(plot_data$Lower) == FALSE,], color = "red") +
   geom_ribbon(aes(ymin = Lower, ymax = Upper), alpha = 0.4, fill = "pink") +
-  labs(title = "Confidence interval representation for the next two predictions",
+  labs(title = "95% confidence interval representation for the next two predictions",
        x = "Date",
        y = "Index of manufacture of perfumes and toiletries") +
   theme_minimal()
