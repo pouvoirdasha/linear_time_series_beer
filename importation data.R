@@ -221,4 +221,10 @@ ggplot(plot_data, aes(x = Date, y = Value)) +
   theme_minimal()+
   theme(plot.title = element_text(size = 20, face = 'bold', hjust = 0.5))
 
+
+#export csv 
+
+write.csv(data,"LTS_Assig.csv", row.names = FALSE)
+
+
         
